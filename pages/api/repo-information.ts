@@ -9,11 +9,11 @@ export default function handler(
   res: NextApiResponse<Data>
 ) {
   const octokit = new Octokit({
-    auth: "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",
+    auth: process.env.GIT_API_KEY,
   });
   const lastMonth = new Date();
-  today.setMonth(today.getMonth() - 1);
-  today.toISOString().split(".")[0] + "Z";
+  lastMonth.setMonth(lastMonth.getMonth() - 1);
+  lastMonth.toISOString().split(".")[0] + "Z";
   const issues = async () => {
     await octokit
       .request("GET /repos/{owner}/{repo}/issues", {
