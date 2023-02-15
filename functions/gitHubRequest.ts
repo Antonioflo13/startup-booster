@@ -6,13 +6,13 @@ const octokit = new Octokit({
 });
 export const gitHubRequest = async (
   url: string,
-  state: string,
-  page: number,
-  lastMonth: string | undefined = undefined
+  state?: string | string[] | undefined,
+  page?: number,
+  lastMonth?: string | undefined
 ) => {
   return await octokit.request(url, {
-    owner: process.env.GIT_HUB_OWNER || "",
-    repo: process.env.GIT_HUB_REPO || "",
+    owner: process.env.NEXT_PUBLIC_GIT_HUB_OWNER || "",
+    repo: process.env.NEXT_PUBLIC_GIT_HUB_REPO || "",
     state: state,
     since: lastMonth,
     page: page,
