@@ -1,10 +1,9 @@
 import ClayChart from "@clayui/charts";
-import { MonthAverage } from "@/ts/interfaces/monthAverage";
 function MothChart({
   monthAverage,
   lastMonthDays,
 }: {
-  monthAverage?: { opened: number[]; closed: number[] };
+  monthAverage: { opened: number[]; closed: number[] };
   lastMonthDays: string[];
 }): JSX.Element {
   return (

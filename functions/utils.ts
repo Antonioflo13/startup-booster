@@ -5,7 +5,6 @@ import { PullsResponse } from "@/ts/interfaces/pullsReponse";
 
 let monthlyIssues: { [key: number]: unknown }[] = [];
 let timeDiff: number = 0;
-let totalCount: number = 0;
 let totalSize: number = 0;
 
 // SET LAST MONTH
@@ -32,6 +31,7 @@ export const convertMsToHour = (time: number) => {
   s = Math.floor(time / 1000);
   m = Math.floor(s / 60);
   h = Math.floor(m / 60);
+  h = h % 24;
   return h;
 };
 

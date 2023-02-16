@@ -7,12 +7,11 @@ import { MonthAverage } from "@/ts/interfaces/monthAverage";
 import { IssuesResponse } from "@/ts/interfaces/issuesResponse";
 import { PullsResponse } from "@/ts/interfaces/pullsReponse";
 //TYPES
-import { chartColumn } from "@/ts/types/chartColumn";
+import { chartJSData, chartData } from "@/ts/types/chartColumn";
 //GLOBAL FUNCTIONS
 import {
   calculateAverageTime,
   convertMsToHour,
-  convertTime,
   getLastMonth,
 } from "@/functions/utils";
 import { gitHubRequest } from "@/functions/gitHubRequest";
@@ -23,6 +22,7 @@ import Sidebar from "@/components/sidebar";
 import Navbar from "@/components/NavBar";
 import Chart from "@/components/Chart";
 import Card from "@/components/Card";
+import PullsSizeChartJS from "@/components/PullsSizeChartJS";
 export default function Home() {
   //STATE
   const [issues, setIssues] = useState([]);
@@ -34,13 +34,15 @@ export default function Home() {
   const [lastMonthDays, setLastMonthDays] = useState<string[]>([]);
   const [lastMonthDaysWithH, setLastMonthDaysWithH] = useState<string[]>([]);
   const [monthAverage, setMonthAverage] = useState({});
-  const [pullsSizeAverage, setPullsSizeAverage] = useState<chartColumn>([
+  const [pullsSizeAverage, setPullsSizeAverage] = useState<
+    chartData | chartJSData
+  >(["", 0, 0, 0]);
+  const [pullsCounter, setPullsCounter] = useState<chartData | chartJSData>([
     "",
     0,
     0,
     0,
   ]);
-  const [pullsCounter, setPullsCounter] = useState<chartColumn>(["", 0, 0, 0]);
 
   const lastMonth = getLastMonth();
   let smallAverageTime = 0;
@@ -141,6 +143,7 @@ export default function Home() {
       arrDaysFormatted.push(item.format("DD-MM-YYYY"));
       arrDaysFormattedWithH.push(item.format("MM-DD-YYYY HH:MM"));
     });
+    arrDaysFormatted.reverse();
     setLastMonthDays(arrDaysFormatted);
     setLastMonthDaysWithH(arrDaysFormattedWithH);
   };
@@ -158,30 +161,44 @@ export default function Home() {
     const closed = new Date(createdDate);
     if (totalDiff <= 100) {
       smallPulls++;
-      smallAverageTime += created.getTime() - closed.getTime();
+      smallAverageTime += Math.abs(created.getTime() - closed.getTime());
     }
     if (totalDiff > 100 && totalDiff <= 1000) {
       mediumPulls++;
-      mediumAverageTime += created.getTime() - closed.getTime();
+      mediumAverageTime += Math.abs(created.getTime() - closed.getTime());
     }
     if (totalDiff > 1000) {
       largePulls++;
-      largeAverageTime += created.getTime() - closed.getTime();
+      largeAverageTime += Math.abs(created.getTime() - closed.getTime());
     }
-    if (pullNumber === pulls.length) {
+    if (pullNumber === 1) {
       smallAverageTime = smallAverageTime / pulls.length;
       smallAverageTime = convertMsToHour(smallAverageTime);
       mediumAverageTime = mediumAverageTime / pulls.length;
       mediumAverageTime = convertMsToHour(mediumAverageTime);
       largeAverageTime = largeAverageTime / pulls.length;
       largeAverageTime = convertMsToHour(largeAverageTime);
-      setPullsSizeAverage([
-        "Average Time",
-        smallAverageTime,
-        mediumAverageTime,
-        largeAverageTime,
-      ]);
-      setPullsCounter(["Pull Request", smallPulls, mediumPulls, largePulls]);
+      // setPullsSizeAverage([
+      //   "Average Time",
+      //   smallAverageTime,
+      //   mediumAverageTime,
+      //   largeAverageTime,
+      // ]);
+      const pAverage = [
+        { type: "small", count: smallAverageTime },
+        { type: "medium", count: mediumAverageTime },
+        { type: "large", count: largeAverageTime },
+      ];
+
+      // @ts-ignore
+      setPullsSizeAverage(pAverage);
+      const pCounter = [
+        { type: "small", count: smallPulls },
+        { type: "medium", count: mediumPulls },
+        { type: "large", count: largePulls },
+      ];
+      // @ts-ignore
+      setPullsCounter(pCounter);
     }
   };
 
@@ -208,24 +225,34 @@ export default function Home() {
         if (moment(issue.closed_at).format("DD-MM-YYYY") === day) {
           issueClosed++;
           obj.issues.closed.push(issueClosed);
+        } else {
+          obj.issues.closed.push(0);
         }
         if (moment(issue.created_at).format("DD-MM-YYYY") === day) {
           issueCreated++;
           obj.issues.opened.push(issueCreated);
+        } else {
+          obj.issues.opened.push(0);
         }
       }
       for (const pull of lastMonthPulls) {
         if (moment(pull.closed_at).format("DD-MM-YYYY") === day) {
           pullClosed++;
           obj.pulls.closed.push(pullClosed);
+        } else {
+          obj.pulls.closed.push(0);
         }
         if (moment(pull.created_at).format("DD-MM-YYYY") === day) {
           pullCreated++;
           obj.pulls.opened.push(pullCreated);
+        } else {
+          obj.pulls.opened.push(0);
         }
         if (moment(pull.merged_at).format("DD-MM-YYYY") === day) {
           pullMerged++;
           obj.pulls.merged.push(pullMerged);
+        } else {
+          obj.pulls.merged.push(0);
         }
       }
     }
@@ -233,7 +260,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // searchIssues(1, "closed");
+    searchIssues(1, "closed");
     // searchIssues(1, "all", lastMonth);
     searchPulls(1, "closed");
     // searchPulls(1, "all");
@@ -275,18 +302,24 @@ export default function Home() {
           <main className="pt-4 mx-4">
             <Card title={"Average Merge Time by Pull Request Size"}>
               <Chart
-                type={"PullsSizeChart"}
+                type={"PullsSizeChartJS"}
                 pullsSizeAverage={pullsSizeAverage}
                 pullsCounter={pullsCounter}
               />
             </Card>
-            <section className="d-flex justify-content-between">
-              <Card title={"Average Pull request Merge Time"}>
-                <div>{pullsAverage}</div>
-              </Card>
-              <Card title={"Average Issue Close Time"}>
-                <div>{issuesAverage}</div>
-              </Card>
+            <section className="d-grid">
+              <div className="row">
+                <div className="col-12 col-md-6 text-center">
+                  <Card title={"Average Pull request Merge Time"}>
+                    <div className="text-11">{pullsAverage}</div>
+                  </Card>
+                </div>
+                <div className="col-12 col-md-6 text-center">
+                  <Card title={"Average Issue Close Time"}>
+                    <div className="text-11">{issuesAverage}</div>
+                  </Card>
+                </div>
+              </div>
             </section>
             <Card
               title={"Month Summary"}

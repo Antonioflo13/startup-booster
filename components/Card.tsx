@@ -48,14 +48,16 @@ const Card = ({
                   <ClayTabs.Content activeIndex={active} fade>
                     <ClayTabs.TabPane aria-labelledby="tab-1">
                       <Chart
-                        type={"MonthChart"}
+                        type={"MonthChartJS"}
+                        dataType={"pulls"}
                         monthAverage={monthAverage?.pulls}
                         lastMonthDays={lastMonthDays}
                       />
                     </ClayTabs.TabPane>
                     <ClayTabs.TabPane aria-labelledby="tab-2">
                       <Chart
-                        type={"MonthChart"}
+                        type={"MonthChartJS"}
+                        dataType={"issues"}
                         monthAverage={monthAverage?.issues}
                         lastMonthDays={lastMonthDays}
                       />

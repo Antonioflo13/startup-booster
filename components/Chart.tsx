@@ -1,28 +1,46 @@
 import dynamic from "next/dynamic";
-import { chartColumn } from "@/ts/types/chartColumn";
+import { chartData, chartJSData } from "@/ts/types/chartColumn";
 import { MonthAverage } from "@/ts/interfaces/monthAverage";
 const Chart = ({
   type,
+  dataType,
   monthAverage,
   lastMonthDays,
   pullsSizeAverage,
   pullsCounter,
 }: {
   type: string;
-  monthAverage?: MonthAverage;
-  pullsSizeAverage: chartColumn;
-  pullsCounter: chartColumn;
+  dataType: string;
+  monthAverage: MonthAverage;
+  pullsSizeAverage?: chartData | chartJSData;
+  pullsCounter?: chartData | chartJSData;
   lastMonthDays: string[];
 }): JSX.Element => {
   switch (type) {
     case "PullsSizeChart":
-      const Chart = dynamic(() => import("@/components/PullsSizeChart"), {
-        ssr: false,
-      });
+      const PullsSizeChart = dynamic(
+        () => import("@/components/PullsSizeChart"),
+        {
+          ssr: false,
+        }
+      );
       return (
-        <Chart
+        <PullsSizeChart
           pullsSizeAverage={pullsSizeAverage}
           pullsCounter={pullsCounter}
+        />
+      );
+    case "PullsSizeChartJS":
+      const PullsSizeChartJS = dynamic(
+        () => import("@/components/PullsSizeChartJS"),
+        {
+          ssr: false,
+        }
+      );
+      return (
+        <PullsSizeChartJS
+          pullsCounter={pullsCounter}
+          pullsSizeAverage={pullsSizeAverage}
         />
       );
     case "MonthChart":
@@ -30,7 +48,22 @@ const Chart = ({
         ssr: false,
       });
       return (
-        <MonthChart monthAverage={monthAverage} lastMonthDays={lastMonthDays} />
+        <MonthChart
+          monthAverage={monthAverage}
+          dataType={dataType}
+          lastMonthDays={lastMonthDays}
+        />
+      );
+    case "MonthChartJS":
+      const MonthChartJS = dynamic(() => import("@/components/MonthChartJS"), {
+        ssr: false,
+      });
+      return (
+        <MonthChartJS
+          monthAverage={monthAverage}
+          dataType={dataType}
+          lastMonthDays={lastMonthDays}
+        />
       );
     default:
       return <div></div>;
