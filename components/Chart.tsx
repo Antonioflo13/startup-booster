@@ -6,7 +6,8 @@ const Chart = ({
   type,
   dataType,
   monthAverage,
-  lastMonthDays,
+  lastMonthDaysH,
+  lastMonthDaysM,
   pullsSizeAverage,
   pullsCounter,
 }: {
@@ -15,7 +16,8 @@ const Chart = ({
   monthAverage: MonthAverage;
   pullsSizeAverage?: chartData | chartJSData;
   pullsCounter?: chartData | chartJSData;
-  lastMonthDays: string[];
+  lastMonthDaysH: string[];
+  lastMonthDaysM: string[];
 }): JSX.Element => {
   switch (type) {
     case "PullsSizeChart":
@@ -52,7 +54,7 @@ const Chart = ({
         <MonthChart
           monthAverage={monthAverage}
           dataType={dataType}
-          lastMonthDays={lastMonthDays}
+          lastMonthDaysH={lastMonthDaysH}
         />
       );
     case "MonthChartJS":
@@ -63,7 +65,7 @@ const Chart = ({
         <MonthChartJS
           monthAverage={monthAverage}
           dataType={dataType}
-          lastMonthDays={lastMonthDays}
+          lastMonthDaysM={lastMonthDaysM}
         />
       );
     default:

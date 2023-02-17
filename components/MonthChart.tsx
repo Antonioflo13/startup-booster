@@ -1,10 +1,10 @@
 import ClayChart from "@clayui/charts";
 function MothChart({
   monthAverage,
-  lastMonthDays,
+  lastMonthDaysH,
 }: {
   monthAverage: { opened: number[]; closed: number[] };
-  lastMonthDays: string[];
+  lastMonthDaysH: string[];
 }): JSX.Element {
   return (
     <>
@@ -14,7 +14,7 @@ function MothChart({
           json: {
             opened: monthAverage ? monthAverage.opened : [],
             closed: monthAverage ? monthAverage.closed : [],
-            x: lastMonthDays,
+            x: lastMonthDaysH,
           },
           type: "line",
           xFormat: "%m-%d-%Y %H:%M",

@@ -3,11 +3,11 @@ import { useEffect } from "react";
 import { issues, pulls } from "@/ts/interfaces/monthAverage";
 
 const PullsSizeChartJS = ({
-  lastMonthDays,
+  lastMonthDaysM,
   monthAverage,
   dataType,
 }: {
-  lastMonthDays: string[];
+  lastMonthDaysM: string[];
   monthAverage: issues | pulls;
   dataType: string;
 }) => {
@@ -48,9 +48,23 @@ const PullsSizeChartJS = ({
       // @ts-ignore
       new Chart(document.getElementById(dataType), {
         type: "line",
-
+        options: {
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+            tooltip: {
+              backgroundColor: "#fcfcfc",
+              titleColor: "black",
+              bodyColor: "black",
+              displayColors: true,
+              usePointStyle: true,
+              padding: 15,
+            },
+          },
+        },
         data: {
-          labels: lastMonthDays,
+          labels: lastMonthDaysM,
           datasets: datasets,
         },
       });

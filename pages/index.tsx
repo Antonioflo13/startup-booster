@@ -33,6 +33,9 @@ export default function Home() {
   const [pullsAverage, setPullsAverage] = useState("");
   const [lastMonthDays, setLastMonthDays] = useState<string[]>([]);
   const [lastMonthDaysWithH, setLastMonthDaysWithH] = useState<string[]>([]);
+  const [lastMonthDaysWithMonth, setLastMonthDaysWithMonth] = useState<
+    string[]
+  >([]);
   const [monthAverage, setMonthAverage] = useState({});
   const [pullsSizeAverage, setPullsSizeAverage] = useState<
     chartData | chartJSData
@@ -130,22 +133,26 @@ export default function Home() {
   //GET DAYS OF LAST MONTH
   const getDaysArrayByMonth = () => {
     let daysInMonth = moment(lastMonth).daysInMonth();
+    let day = moment().subtract(30, "day");
     let arrDays: { format: Function }[] = [];
     let arrDaysFormatted: string[] = [];
     let arrDaysFormattedWithH: string[] = [];
+    let arrDaysFormattedWithMonth: string[] = [];
 
     while (daysInMonth) {
-      const current = moment(lastMonth).date(daysInMonth);
+      day = moment(day).add(1, "day");
+      const current = moment(day);
       arrDays.push(current);
       daysInMonth--;
     }
     arrDays.forEach((item) => {
       arrDaysFormatted.push(item.format("DD-MM-YYYY"));
       arrDaysFormattedWithH.push(item.format("MM-DD-YYYY HH:MM"));
+      arrDaysFormattedWithMonth.push(item.format("DD MMM"));
     });
-    arrDaysFormatted.reverse();
     setLastMonthDays(arrDaysFormatted);
     setLastMonthDaysWithH(arrDaysFormattedWithH);
+    setLastMonthDaysWithMonth(arrDaysFormattedWithMonth);
   };
 
   //CALCULATE AVERAGE PULLS BY SIZES
@@ -325,7 +332,8 @@ export default function Home() {
               title={"Month Summary"}
               tabs={true}
               monthAverage={monthAverage}
-              lastMonthDays={lastMonthDaysWithH}
+              lastMonthDaysH={lastMonthDaysWithH}
+              lastMonthDaysM={lastMonthDaysWithMonth}
             />
           </main>
         </div>

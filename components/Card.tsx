@@ -9,14 +9,16 @@ interface cardProps {
   tabs?: boolean;
   children?: JSX.Element;
   monthAverage?: { pulls: pulls; issues: issues };
-  lastMonthDays?: any;
+  lastMonthDaysH?: any;
+  lastMonthDaysM?: any;
 }
 const Card = ({
   title,
   tabs = false,
   children,
   monthAverage,
-  lastMonthDays,
+  lastMonthDaysH,
+  lastMonthDaysM,
 }: cardProps): JSX.Element => {
   const [active, setActive] = useState(0);
   return (
@@ -51,7 +53,8 @@ const Card = ({
                         type={"MonthChartJS"}
                         dataType={"pulls"}
                         monthAverage={monthAverage?.pulls}
-                        lastMonthDays={lastMonthDays}
+                        lastMonthDaysM={lastMonthDaysM}
+                        lastMonthDaysH={lastMonthDaysH}
                       />
                     </ClayTabs.TabPane>
                     <ClayTabs.TabPane aria-labelledby="tab-2">
@@ -59,7 +62,8 @@ const Card = ({
                         type={"MonthChartJS"}
                         dataType={"issues"}
                         monthAverage={monthAverage?.issues}
-                        lastMonthDays={lastMonthDays}
+                        lastMonthDaysM={lastMonthDaysM}
+                        lastMonthDaysH={lastMonthDaysH}
                       />
                     </ClayTabs.TabPane>
                   </ClayTabs.Content>
