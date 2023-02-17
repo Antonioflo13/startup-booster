@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 import { chartData, chartJSData } from "@/ts/types/chartColumn";
 import { MonthAverage } from "@/ts/interfaces/monthAverage";
+import { memo } from "react";
 const Chart = ({
   type,
   dataType,
@@ -70,4 +71,6 @@ const Chart = ({
   }
 };
 
-export default Chart;
+export const ChartComponent = memo(Chart);
+
+export default ChartComponent;

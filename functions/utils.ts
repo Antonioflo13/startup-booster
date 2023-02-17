@@ -10,7 +10,7 @@ let totalSize: number = 0;
 // SET LAST MONTH
 export const getLastMonth = (): string => {
   const today = new Date();
-  today.setMonth(today.getMonth() - 1);
+  today.setDate(today.getDate() - 30);
   return today.toISOString().split(".")[0] + "Z";
 };
 

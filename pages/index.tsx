@@ -261,9 +261,9 @@ export default function Home() {
 
   useEffect(() => {
     searchIssues(1, "closed");
-    // searchIssues(1, "all", lastMonth);
+    searchIssues(1, "all", lastMonth);
     searchPulls(1, "closed");
-    // searchPulls(1, "all");
+    searchPulls(1, "all");
     getDaysArrayByMonth();
   }, []);
 

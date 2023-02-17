@@ -46,7 +46,7 @@ const PullsSizeChartJS = ({
   useEffect(() => {
     (async function () {
       // @ts-ignore
-      new Chart(document.getElementById(`${dataType}`), {
+      new Chart(document.getElementById(dataType), {
         type: "line",
 
         data: {
@@ -55,6 +55,10 @@ const PullsSizeChartJS = ({
         },
       });
     })();
+    return () => {
+      const element = document.getElementById(dataType);
+      element?.remove();
+    };
   }, []);
   return <canvas id={dataType}></canvas>;
 };

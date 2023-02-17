@@ -51,6 +51,10 @@ const PullsSizeChartJS = ({
         });
       })();
     }
+    return () => {
+      const element = document.getElementById("pullsSizeChartJS");
+      element?.remove();
+    };
   }, []);
   return <canvas id="pullsSizeChartJS"></canvas>;
 };
