@@ -1,11 +1,9 @@
-import { getPull } from "@/api/pulls";
 import { gitHubRequest } from "@/functions/gitHubRequest";
 import { IssuesResponse } from "@/ts/interfaces/issuesResponse";
 import { PullsResponse } from "@/ts/interfaces/pullsReponse";
 
 let monthlyIssues: { [key: number]: unknown }[] = [];
 let timeDiff: number = 0;
-let totalSize: number = 0;
 
 // SET LAST MONTH
 export const getLastMonth = (): string => {
@@ -23,7 +21,7 @@ export const convertTime = (time: number): string => {
   m = m % 60;
   d = Math.floor(h / 24);
   h = h % 24;
-  return d + " day " + h + "h" + m + "m";
+  return d + "day " + h + "h" + m + "m";
 };
 //COVERT TIME IN MS IN HOUR
 export const convertMsToHour = (time: number) => {
@@ -64,20 +62,6 @@ export const calculateAverageTime = (
   const average = convertTime(timeDiff);
   timeDiff = 0;
   return average;
-};
-
-export const calculateAverageSize = async (
-  responseData: {
-    [key: number]: any;
-    number: number;
-  }[]
-): Promise<number> => {
-  for (const data of responseData) {
-    console.log(data.number);
-    const { deletions, additions } = await getPull(data.number);
-    totalSize += deletions + additions;
-  }
-  return totalSize;
 };
 
 export const issues = async (pageNumber: number, lastMonth?: string) => {

@@ -2,7 +2,7 @@ import { Octokit } from "octokit";
 
 //GITHUB INITIALIZATION
 const octokit = new Octokit({
-  auth: process.env.GIT_API_KEY,
+  auth: process.env.NEXT_PUBLIC_GIT_API_KEY,
 });
 export const gitHubRequest = async (
   url: string,

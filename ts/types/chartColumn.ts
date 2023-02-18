@@ -1,5 +1,5 @@
 interface IChart {
-  type: "small";
+  type: string;
   count: number;
 }
 export type chartJSData = IChart[];

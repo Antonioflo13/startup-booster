@@ -25,7 +25,7 @@ import Card from "@/components/Card";
 import PullsSizeChartJS from "@/components/PullsSizeChartJS";
 export default function Home() {
   //STATE
-  const [issues, setIssues] = useState([]);
+  const [issues, setIssues] = useState<IssuesResponse[]>([]);
   const [lastMonthIssues, setLastMonthIssues] = useState<IssuesResponse[]>([]);
   const [issuesAverage, setIssuesAverage] = useState("");
   const [pulls, setPulls] = useState<PullsResponse[]>([]);
@@ -36,18 +36,40 @@ export default function Home() {
   const [lastMonthDaysWithMonth, setLastMonthDaysWithMonth] = useState<
     string[]
   >([]);
-  const [monthAverage, setMonthAverage] = useState({});
-  const [pullsSizeAverage, setPullsSizeAverage] = useState<
-    chartData | chartJSData
-  >(["", 0, 0, 0]);
-  const [pullsCounter, setPullsCounter] = useState<chartData | chartJSData>([
+  const [monthAverage, setMonthAverage] = useState<MonthAverage>({
+    issues: {
+      opened: [],
+      closed: [],
+    },
+    pulls: {
+      opened: [],
+      closed: [],
+      merged: [],
+    },
+  });
+  const [pullsSizeAverage, setPullsSizeAverage] = useState<chartData>([
     "",
     0,
     0,
     0,
   ]);
+  const [pullsSizeAverageJS, setPullsSizeAverageJS] = useState<chartJSData>([
+    { type: "small", count: 0 },
+    { type: "medium", count: 0 },
+    { type: "large", count: 0 },
+  ]);
+  const [pullsCounter, setPullsCounter] = useState<chartData>(["", 0, 0, 0]);
+  const [pullsCounterJS, setPullsCounterJS] = useState<chartJSData>([
+    { type: "small", count: 0 },
+    { type: "medium", count: 0 },
+    { type: "large", count: 0 },
+  ]);
 
   const lastMonth = getLastMonth();
+  let issuesList: IssuesResponse[] = [];
+  let lastMonthIssuesList: IssuesResponse[] = [];
+  let pullsList: PullsResponse[] = [];
+  let lastMonthPullsList: PullsResponse[] = [];
   let smallAverageTime = 0;
   let smallPulls = 0;
   let mediumAverageTime = 0;
@@ -69,17 +91,27 @@ export default function Home() {
       pageNumber,
       lastMonth
     );
-    if (!data.length) {
-      pageNumber++;
-      searchIssues(pageNumber++, state);
-    }
     if (data.length) {
       switch (state) {
         case "all":
-          setLastMonthIssues(data);
+          lastMonthIssuesList = [...lastMonthIssuesList, ...data];
           break;
         case "closed":
-          setIssues(data);
+          issuesList = [...issuesList, ...data];
+          break;
+      }
+      pageNumber++;
+      searchIssues(pageNumber++, state);
+    }
+    if (!data.length) {
+      switch (state) {
+        case "all":
+          setLastMonthIssues(lastMonthIssuesList);
+          lastMonthIssuesList = [];
+          break;
+        case "closed":
+          setIssues(issuesList);
+          issuesList = [];
           break;
       }
     }
@@ -93,17 +125,28 @@ export default function Home() {
         state,
         pageNumber
       );
-      if (!data.length) {
-        pageNumber++;
-        searchPulls(pageNumber++, state);
-      }
       if (data.length) {
         switch (state) {
           case "all":
-            setLastMonthPulls(data);
+            lastMonthPullsList = [...lastMonthPullsList, ...data];
             break;
           case "closed":
-            setPulls(data);
+            pullsList = [...pullsList, ...data];
+            break;
+        }
+        pageNumber++;
+        searchPulls(pageNumber++, state);
+      }
+      if (!data.length) {
+        switch (state) {
+          case "all":
+            setLastMonthPulls(lastMonthPullsList);
+            lastMonthPullsList = [];
+            break;
+          case "closed":
+            setPulls(pullsList);
+            console.log(pullsList[pullsList.length - 1].number);
+            pullsList = [];
             break;
         }
       }
@@ -178,34 +221,32 @@ export default function Home() {
       largePulls++;
       largeAverageTime += Math.abs(created.getTime() - closed.getTime());
     }
-    if (pullNumber === 1) {
+    if (pullNumber === pulls[pulls.length - 1].number) {
       smallAverageTime = smallAverageTime / pulls.length;
       smallAverageTime = convertMsToHour(smallAverageTime);
       mediumAverageTime = mediumAverageTime / pulls.length;
       mediumAverageTime = convertMsToHour(mediumAverageTime);
       largeAverageTime = largeAverageTime / pulls.length;
       largeAverageTime = convertMsToHour(largeAverageTime);
-      // setPullsSizeAverage([
-      //   "Average Time",
-      //   smallAverageTime,
-      //   mediumAverageTime,
-      //   largeAverageTime,
-      // ]);
+      setPullsSizeAverage([
+        "Average Time",
+        smallAverageTime,
+        mediumAverageTime,
+        largeAverageTime,
+      ]);
+      setPullsCounter(["Pull Request", smallPulls, mediumPulls, largePulls]);
       const pAverage = [
         { type: "small", count: smallAverageTime },
         { type: "medium", count: mediumAverageTime },
         { type: "large", count: largeAverageTime },
       ];
-
-      // @ts-ignore
-      setPullsSizeAverage(pAverage);
+      setPullsSizeAverageJS(pAverage);
       const pCounter = [
         { type: "small", count: smallPulls },
         { type: "medium", count: mediumPulls },
         { type: "large", count: largePulls },
       ];
-      // @ts-ignore
-      setPullsCounter(pCounter);
+      setPullsCounterJS(pCounter);
     }
   };
 
@@ -232,38 +273,29 @@ export default function Home() {
         if (moment(issue.closed_at).format("DD-MM-YYYY") === day) {
           issueClosed++;
           obj.issues.closed.push(issueClosed);
-        } else {
-          obj.issues.closed.push(0);
+          console.log(issueClosed, day);
         }
         if (moment(issue.created_at).format("DD-MM-YYYY") === day) {
           issueCreated++;
           obj.issues.opened.push(issueCreated);
-        } else {
-          obj.issues.opened.push(0);
         }
       }
       for (const pull of lastMonthPulls) {
         if (moment(pull.closed_at).format("DD-MM-YYYY") === day) {
           pullClosed++;
           obj.pulls.closed.push(pullClosed);
-        } else {
-          obj.pulls.closed.push(0);
         }
         if (moment(pull.created_at).format("DD-MM-YYYY") === day) {
           pullCreated++;
           obj.pulls.opened.push(pullCreated);
-        } else {
-          obj.pulls.opened.push(0);
         }
         if (moment(pull.merged_at).format("DD-MM-YYYY") === day) {
           pullMerged++;
           obj.pulls.merged.push(pullMerged);
-        } else {
-          obj.pulls.merged.push(0);
         }
       }
     }
-    setMonthAverage({ monthAverage, ...obj });
+    setMonthAverage({ ...monthAverage, ...obj });
   };
 
   useEffect(() => {
@@ -282,6 +314,7 @@ export default function Home() {
     setPullsAverage(calculateAverageTime(pulls));
     if (pulls) {
       for (const pull of pulls) {
+        console.log(pull);
         getPull("closed", pull.number);
       }
     }
@@ -302,16 +335,18 @@ export default function Home() {
       <div className="d-flex vh-100 overflow-hidden">
         <Sidebar />
         <div
-          style={{ overflowY: "scroll" }}
-          className="w-100 min-vh-100 bg-secondary"
+          style={{ overflowY: "scroll", backgroundColor: "#F1F2F5" }}
+          className="w-100 min-vh-100"
         >
           <Navbar />
           <main className="pt-4 mx-4">
             <Card title={"Average Merge Time by Pull Request Size"}>
               <Chart
                 type={"PullsSizeChartJS"}
+                pullsSizeAverageJS={pullsSizeAverageJS}
                 pullsSizeAverage={pullsSizeAverage}
                 pullsCounter={pullsCounter}
+                pullsCounterJS={pullsCounterJS}
               />
             </Card>
             <section className="d-grid">

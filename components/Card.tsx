@@ -8,9 +8,9 @@ interface cardProps {
   title: string;
   tabs?: boolean;
   children?: JSX.Element;
-  monthAverage?: { pulls: pulls; issues: issues };
-  lastMonthDaysH?: any;
-  lastMonthDaysM?: any;
+  monthAverage?: MonthAverage;
+  lastMonthDaysH?: string[];
+  lastMonthDaysM?: string[];
 }
 const Card = ({
   title,
@@ -52,7 +52,7 @@ const Card = ({
                       <Chart
                         type={"MonthChartJS"}
                         dataType={"pulls"}
-                        monthAverage={monthAverage?.pulls}
+                        monthAveragePulls={monthAverage?.pulls}
                         lastMonthDaysM={lastMonthDaysM}
                         lastMonthDaysH={lastMonthDaysH}
                       />
@@ -61,7 +61,7 @@ const Card = ({
                       <Chart
                         type={"MonthChartJS"}
                         dataType={"issues"}
-                        monthAverage={monthAverage?.issues}
+                        monthAverageIssues={monthAverage?.issues}
                         lastMonthDaysM={lastMonthDaysM}
                         lastMonthDaysH={lastMonthDaysH}
                       />

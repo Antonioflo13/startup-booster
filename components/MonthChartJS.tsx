@@ -4,44 +4,59 @@ import { issues, pulls } from "@/ts/interfaces/monthAverage";
 
 const PullsSizeChartJS = ({
   lastMonthDaysM,
-  monthAverage,
+  monthAverageIssues,
+  monthAveragePulls,
   dataType,
 }: {
   lastMonthDaysM: string[];
-  monthAverage: issues | pulls;
+  monthAverageIssues: issues;
+  monthAveragePulls: pulls;
   dataType: string;
 }) => {
-  let datasets: { label: string; data: number[] }[];
+  let datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+  }[];
   switch (dataType) {
     case "issues":
       datasets = [
         {
           label: "Opened",
-          data: monthAverage.opened,
+          data: monthAverageIssues.opened,
+          borderColor: "#FF3A00",
+          backgroundColor: "#FF3A00",
         },
         {
           label: "Closed",
-          data: monthAverage.closed,
+          data: monthAverageIssues.closed,
+          borderColor: "#0FC600",
+          backgroundColor: "#0FC600",
         },
       ];
       break;
     case "pulls":
-      if ("merged" in monthAverage) {
-        datasets = [
-          {
-            label: "Opened",
-            data: monthAverage.opened,
-          },
-          {
-            label: "Closed",
-            data: monthAverage.closed,
-          },
-          {
-            label: "Merged",
-            data: monthAverage.merged,
-          },
-        ];
-      }
+      datasets = [
+        {
+          label: "Merged",
+          data: monthAveragePulls.merged,
+          borderColor: "#B20AFF",
+          backgroundColor: "#B20AFF",
+        },
+        {
+          label: "Opened",
+          data: monthAveragePulls.opened,
+          borderColor: "#FF3A00",
+          backgroundColor: "#FF3A00",
+        },
+        {
+          label: "Closed",
+          data: monthAveragePulls.closed,
+          borderColor: "#0FC600",
+          backgroundColor: "#0FC600",
+        },
+      ];
   }
   useEffect(() => {
     (async function () {
@@ -52,6 +67,11 @@ const PullsSizeChartJS = ({
           plugins: {
             legend: {
               position: "bottom",
+              labels: {
+                usePointStyle: true,
+                pointStyle: "circle",
+                boxHeight: 5,
+              },
             },
             tooltip: {
               backgroundColor: "#fcfcfc",
@@ -60,6 +80,17 @@ const PullsSizeChartJS = ({
               displayColors: true,
               usePointStyle: true,
               padding: 15,
+              yAlign: "bottom",
+              callbacks: {
+                title(): string {
+                  return "Pull Requests";
+                },
+              },
+            },
+          },
+          elements: {
+            point: {
+              pointStyle: false,
             },
           },
         },
