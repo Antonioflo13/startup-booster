@@ -6,8 +6,8 @@ import ClayProgressBar from "@clayui/progress-bar";
 const Chart = ({
   type,
   dataType,
-  monthAverageIssues,
-  monthAveragePulls,
+  monthIssuesAverage,
+  monthPullsAverage,
   lastMonthDaysH,
   lastMonthDaysM,
   pullsSizeAverage,
@@ -16,19 +16,21 @@ const Chart = ({
   pullsCounterJS,
   loadingPullSizesChart,
   loadingPullMonth,
+  loadingIssuesMonth,
 }: {
   type: string;
   dataType?: string;
-  monthAverageIssues?: issues;
-  monthAveragePulls?: pulls;
+  monthIssuesAverage?: issues;
+  monthPullsAverage?: pulls;
   pullsSizeAverageJS?: chartJSData;
   pullsSizeAverage?: chartData;
   pullsCounter?: chartData;
   pullsCounterJS?: chartJSData;
   lastMonthDaysH?: string[];
   lastMonthDaysM?: string[];
-  loadingPullSizesChart: number;
-  loadingPullMonth: number;
+  loadingPullSizesChart?: number;
+  loadingPullMonth?: number;
+  loadingIssuesMonth?: number;
 }): JSX.Element => {
   switch (type) {
     case "PullsSizeChart":
@@ -46,7 +48,11 @@ const Chart = ({
           />
         );
       } else {
-        return <ClayProgressBar value={loadingPullSizesChart} />;
+        return (
+          <ClayProgressBar
+            value={loadingPullSizesChart ? loadingPullSizesChart : 0}
+          />
+        );
       }
     case "PullsSizeChartJS":
       const PullsSizeChartJS = dynamic(
@@ -58,7 +64,8 @@ const Chart = ({
       if (
         pullsCounterJS &&
         pullsSizeAverageJS &&
-        loadingPullSizesChart === 100
+        loadingPullSizesChart &&
+        loadingPullSizesChart >= 100
       ) {
         return (
           <PullsSizeChartJS
@@ -67,7 +74,11 @@ const Chart = ({
           />
         );
       } else {
-        return <ClayProgressBar value={loadingPullSizesChart} />;
+        return (
+          <ClayProgressBar
+            value={loadingPullSizesChart ? loadingPullSizesChart : 0}
+          />
+        );
       }
 
     case "MonthChart":
@@ -75,41 +86,71 @@ const Chart = ({
         ssr: false,
       });
       if (
-        monthAverageIssues ||
-        (monthAveragePulls && dataType && lastMonthDaysH)
+        monthIssuesAverage ||
+        (monthIssuesAverage && dataType && lastMonthDaysH)
       ) {
         return (
           <MonthChart
-            monthAverageIssues={monthAverageIssues}
-            monthAveragePulls={monthAveragePulls}
-            dataType={dataType}
+            monthIssuesAverage={monthIssuesAverage}
             lastMonthDaysH={lastMonthDaysH}
           />
         );
       } else {
         return <div></div>;
       }
-    case "MonthChartJS":
-      const MonthChartJS = dynamic(() => import("@/components/MonthChartJS"), {
-        ssr: false,
-      });
+    case "MonthPullsChartJS":
+      const MonthPullsChartJS = dynamic(
+        () => import("@/components/MonthPullsChartJS"),
+        {
+          ssr: false,
+        }
+      );
       if (
-        monthAverageIssues ||
-        (monthAveragePulls &&
-          dataType &&
-          lastMonthDaysM &&
-          loadingPullMonth === 100)
+        monthPullsAverage &&
+        dataType &&
+        lastMonthDaysM &&
+        loadingPullMonth &&
+        loadingPullMonth >= 100
       ) {
         return (
-          <MonthChartJS
-            monthAverageIssues={monthAverageIssues}
-            monthAveragePulls={monthAveragePulls}
+          <MonthPullsChartJS
+            monthPullsAverage={monthPullsAverage}
             dataType={dataType}
             lastMonthDaysM={lastMonthDaysM}
           />
         );
       } else {
-        return <ClayProgressBar value={loadingPullMonth} />;
+        return (
+          <ClayProgressBar value={loadingPullMonth ? loadingPullMonth : 0} />
+        );
+      }
+    case "MonthIssuesChartJS":
+      const MonthIssuesChartJS = dynamic(
+        () => import("@/components/MonthIssuesChartJS"),
+        {
+          ssr: false,
+        }
+      );
+      if (
+        monthIssuesAverage &&
+        dataType &&
+        lastMonthDaysM &&
+        loadingIssuesMonth &&
+        loadingIssuesMonth >= 100
+      ) {
+        return (
+          <MonthIssuesChartJS
+            monthIssuesAverage={monthIssuesAverage}
+            dataType={dataType}
+            lastMonthDaysM={lastMonthDaysM}
+          />
+        );
+      } else {
+        return (
+          <ClayProgressBar
+            value={loadingIssuesMonth ? loadingIssuesMonth : 0}
+          />
+        );
       }
 
     default:

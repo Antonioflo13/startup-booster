@@ -11,16 +11,21 @@ interface cardProps {
   monthAverage?: MonthAverage;
   lastMonthDaysH?: string[];
   lastMonthDaysM?: string[];
-  loadingPullMonth: number;
+  loadingPullMonth?: number;
+  loadingIssuesMonth?: number;
+  monthPullsAverage?: pulls;
+  monthIssuesAverage?: issues;
 }
 const Card = ({
   title,
   tabs = false,
   children,
-  monthAverage,
+  monthPullsAverage,
+  monthIssuesAverage,
   lastMonthDaysH,
   lastMonthDaysM,
   loadingPullMonth,
+  loadingIssuesMonth,
 }: cardProps): JSX.Element => {
   const [active, setActive] = useState(0);
   return (
@@ -52,22 +57,24 @@ const Card = ({
                   <ClayTabs.Content activeIndex={active} fade>
                     <ClayTabs.TabPane aria-labelledby="tab-1">
                       <Chart
-                        type={"MonthChartJS"}
+                        type={"MonthPullsChartJS"}
                         dataType={"pulls"}
-                        monthAveragePulls={monthAverage?.pulls}
+                        monthPullsAverage={monthPullsAverage}
                         lastMonthDaysM={lastMonthDaysM}
                         lastMonthDaysH={lastMonthDaysH}
                         loadingPullMonth={loadingPullMonth}
+                        loadingIssuesMonth={loadingIssuesMonth}
                       />
                     </ClayTabs.TabPane>
                     <ClayTabs.TabPane aria-labelledby="tab-2">
                       <Chart
-                        type={"MonthChartJS"}
+                        type={"MonthIssuesChartJS"}
                         dataType={"issues"}
-                        monthAverageIssues={monthAverage?.issues}
+                        monthIssuesAverage={monthIssuesAverage}
                         lastMonthDaysM={lastMonthDaysM}
                         lastMonthDaysH={lastMonthDaysH}
                         loadingPullMonth={loadingPullMonth}
+                        loadingIssuesMonth={loadingIssuesMonth}
                       />
                     </ClayTabs.TabPane>
                   </ClayTabs.Content>

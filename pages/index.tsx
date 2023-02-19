@@ -3,7 +3,7 @@ import Head from "next/head";
 //REACT
 import { useEffect, useState } from "react";
 //INTERFACES
-import { MonthAverage } from "@/ts/interfaces/monthAverage";
+import { issues, MonthAverage, pulls } from "@/ts/interfaces/monthAverage";
 import { IssuesResponse } from "@/ts/interfaces/issuesResponse";
 import { PullsResponse } from "@/ts/interfaces/pullsReponse";
 //TYPES
@@ -23,6 +23,7 @@ import Navbar from "@/components/NavBar";
 import Chart from "@/components/Chart";
 import Card from "@/components/Card";
 import PullsSizeChartJS from "@/components/PullsSizeChartJS";
+import ClayProgressBar from "@clayui/progress-bar";
 export default function Home() {
   //STATE
   //ISSUES
@@ -40,17 +41,16 @@ export default function Home() {
     string[]
   >([]);
   //MONTH
-  const [monthAverage, setMonthAverage] = useState<MonthAverage>({
-    issues: {
-      opened: [],
-      closed: [],
-    },
-    pulls: {
-      opened: [],
-      closed: [],
-      merged: [],
-    },
+  const [monthIssuesAverage, setMonthIssuesAverage] = useState<issues>({
+    opened: [],
+    closed: [],
   });
+  const [monthPullsAverage, setMonthPullsAverage] = useState<pulls>({
+    opened: [],
+    closed: [],
+    merged: [],
+  });
+
   const [pullsSizeAverage, setPullsSizeAverage] = useState<chartData>([
     "",
     0,
@@ -84,6 +84,7 @@ export default function Home() {
   //LOADING STATE
   const [loadingPullSizesChart, setLoadingPullSizesChart] = useState<number>(0);
   const [loadingPullMonth, setLoadingPullMonth] = useState<number>(0);
+  const [loadingIssuesMonth, setLoadingIssuesMonth] = useState<number>(0);
 
   //FUNCTIONS
 
@@ -99,7 +100,7 @@ export default function Home() {
       pageNumber,
       lastMonth
     );
-    if (data.length) {
+    if (status === 200 && data.length) {
       switch (state) {
         case "all":
           lastMonthIssuesList = [...lastMonthIssuesList, ...data];
@@ -109,9 +110,11 @@ export default function Home() {
           break;
       }
       pageNumber++;
+      setLoadingIssuesMonth((oldValue) => oldValue + 1);
       searchIssues(pageNumber++, state);
     }
     if (!data.length) {
+      setLoadingIssuesMonth((oldValue) => oldValue + 1);
       switch (state) {
         case "all":
           setLastMonthIssues(lastMonthIssuesList);
@@ -133,7 +136,7 @@ export default function Home() {
         state,
         pageNumber
       );
-      if (data.length) {
+      if (status === 200 && data.length) {
         switch (state) {
           case "all":
             lastMonthPullsList = [...lastMonthPullsList, ...data];
@@ -172,14 +175,16 @@ export default function Home() {
         `GET /repos/{owner}/{repo}/pulls/${number}`,
         state
       );
-      calculateAveragePullsSize(
-        data.number,
-        index,
-        data.deletions,
-        data.additions,
-        data.merged_at,
-        data.created_at
-      );
+      if (status === 200) {
+        calculateAveragePullsSize(
+          data.number,
+          index,
+          data.deletions,
+          data.additions,
+          data.merged_at,
+          data.created_at
+        );
+      }
     } catch (e) {
       console.log(e);
     }
@@ -213,7 +218,7 @@ export default function Home() {
   //CALCULATE AVERAGE PULLS BY SIZES
   const calculateAveragePullsSize = (
     pullNumber: number,
-    index: number,
+    index: number | undefined,
     deletions: number,
     additions: number,
     mergedDate: string,
@@ -234,8 +239,10 @@ export default function Home() {
       largePulls++;
       largeAverageTime += Math.abs(created.getTime() - closed.getTime());
     }
-    const calculatingPercentage = ((index + 1) / pulls.length) * 100;
-    setLoadingPullSizesChart(Math.round(calculatingPercentage));
+    if (index) {
+      const calculatingPercentage = ((index + 1) / pulls.length) * 100;
+      setLoadingPullSizesChart(Math.round(calculatingPercentage));
+    }
     if (pullNumber === pulls[pulls.length - 1].number) {
       smallAverageTime = smallAverageTime / pulls.length;
       smallAverageTime = convertMsToHour(smallAverageTime);
@@ -266,8 +273,9 @@ export default function Home() {
   };
 
   //CALCULATE MONTH AVERAGE
-  const calculateMonthAverage = () => {
+  const calculateMonthAverage = (type: string): void => {
     setLoadingPullMonth((oldValue) => oldValue + 1);
+    setLoadingIssuesMonth((oldValue) => oldValue + 1);
     const obj: MonthAverage = {
       issues: {
         opened: [],
@@ -279,41 +287,52 @@ export default function Home() {
         merged: [],
       },
     };
-    for (const [index, day] of lastMonthDays.entries()) {
-      const calculatingPercentage = ((index + 1) / pulls.length) * 100;
-      console.log(calculatingPercentage);
-      setLoadingPullSizesChart(Math.round(calculatingPercentage));
-      let issueClosed = 0;
-      let issueCreated = 0;
-      let pullClosed = 0;
-      let pullCreated = 0;
-      let pullMerged = 0;
-      for (const issue of lastMonthIssues) {
-        if (moment(issue.closed_at).format("DD-MM-YYYY") === day) {
-          issueClosed++;
-          obj.issues.closed.push(issueClosed);
+    switch (type) {
+      case "issues":
+        for (const [index, day] of lastMonthDays.entries()) {
+          const calculatingPercentage =
+            ((index + 1) / lastMonthDays.length) * 100;
+          setLoadingIssuesMonth(Math.round(calculatingPercentage));
+          let issueClosed = 0;
+          let issueCreated = 0;
+          for (const issue of lastMonthIssues) {
+            if (moment(issue.closed_at).format("DD-MM-YYYY") === day) {
+              issueClosed++;
+              obj.issues.closed.push(issueClosed);
+            }
+            if (moment(issue.created_at).format("DD-MM-YYYY") === day) {
+              issueCreated++;
+              obj.issues.opened.push(issueCreated);
+            }
+          }
         }
-        if (moment(issue.created_at).format("DD-MM-YYYY") === day) {
-          issueCreated++;
-          obj.issues.opened.push(issueCreated);
+        setMonthIssuesAverage({ ...monthIssuesAverage, ...obj.issues });
+        break;
+      case "pulls":
+        for (const [index, day] of lastMonthDays.entries()) {
+          const calculatingPercentage =
+            ((index + 1) / lastMonthDays.length) * 100;
+          setLoadingPullMonth(Math.round(calculatingPercentage));
+          let pullClosed = 0;
+          let pullCreated = 0;
+          let pullMerged = 0;
+          for (const pull of lastMonthPulls) {
+            if (moment(pull.closed_at).format("DD-MM-YYYY") === day) {
+              pullClosed++;
+              obj.pulls.closed.push(pullClosed);
+            }
+            if (moment(pull.created_at).format("DD-MM-YYYY") === day) {
+              pullCreated++;
+              obj.pulls.opened.push(pullCreated);
+            }
+            if (moment(pull.merged_at).format("DD-MM-YYYY") === day) {
+              pullMerged++;
+              obj.pulls.merged.push(pullMerged);
+            }
+          }
         }
-      }
-      for (const pull of lastMonthPulls) {
-        if (moment(pull.closed_at).format("DD-MM-YYYY") === day) {
-          pullClosed++;
-          obj.pulls.closed.push(pullClosed);
-        }
-        if (moment(pull.created_at).format("DD-MM-YYYY") === day) {
-          pullCreated++;
-          obj.pulls.opened.push(pullCreated);
-        }
-        if (moment(pull.merged_at).format("DD-MM-YYYY") === day) {
-          pullMerged++;
-          obj.pulls.merged.push(pullMerged);
-        }
-      }
+        setMonthPullsAverage({ ...monthPullsAverage, ...obj.pulls });
     }
-    setMonthAverage({ ...monthAverage, ...obj });
   };
 
   useEffect(() => {
@@ -338,8 +357,13 @@ export default function Home() {
   }, [pulls]);
 
   useEffect(() => {
-    calculateMonthAverage();
-  }, [lastMonthIssues]);
+    if (lastMonthIssues) {
+      calculateMonthAverage("issues");
+    }
+    if (lastMonthPulls) {
+      calculateMonthAverage("pulls");
+    }
+  }, [lastMonthIssues, lastMonthPulls]);
 
   return (
     <>
@@ -371,12 +395,26 @@ export default function Home() {
               <div className="row">
                 <div className="col-12 col-md-6 text-center">
                   <Card title={"Average Pull request Merge Time"}>
-                    <div className="text-11">{pullsAverage}</div>
+                    {loadingPullMonth >= 100 ? (
+                      <div className="text-11">{pullsAverage}</div>
+                    ) : (
+                      <ClayProgressBar
+                        value={
+                          loadingPullSizesChart ? loadingPullSizesChart : 0
+                        }
+                      />
+                    )}
                   </Card>
                 </div>
                 <div className="col-12 col-md-6 text-center">
                   <Card title={"Average Issue Close Time"}>
-                    <div className="text-11">{issuesAverage}</div>
+                    {loadingPullMonth >= 100 ? (
+                      <div className="text-11">{issuesAverage}</div>
+                    ) : (
+                      <ClayProgressBar
+                        value={loadingIssuesMonth ? loadingIssuesMonth : 0}
+                      />
+                    )}
                   </Card>
                 </div>
               </div>
@@ -385,7 +423,9 @@ export default function Home() {
               title={"Month Summary"}
               tabs={true}
               loadingPullMonth={loadingPullMonth}
-              monthAverage={monthAverage}
+              loadingIssuesMonth={loadingIssuesMonth}
+              monthPullsAverage={monthPullsAverage}
+              monthIssuesAverage={monthIssuesAverage}
               lastMonthDaysH={lastMonthDaysWithH}
               lastMonthDaysM={lastMonthDaysWithMonth}
             />

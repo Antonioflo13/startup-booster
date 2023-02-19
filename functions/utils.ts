@@ -1,8 +1,7 @@
-import { gitHubRequest } from "@/functions/gitHubRequest";
+//TS
 import { IssuesResponse } from "@/ts/interfaces/issuesResponse";
 import { PullsResponse } from "@/ts/interfaces/pullsReponse";
 
-let monthlyIssues: { [key: number]: unknown }[] = [];
 let timeDiff: number = 0;
 
 // SET LAST MONTH
@@ -33,24 +32,6 @@ export const convertMsToHour = (time: number) => {
   return h;
 };
 
-export const checkData = (
-  responseData: {
-    [key: number]: any;
-    created_at: string;
-    closed_at: string;
-  }[]
-) => {
-  if (responseData.length) {
-    monthlyIssues = [...monthlyIssues, ...responseData];
-    return false;
-  }
-  if (!responseData.length) {
-    const response = monthlyIssues;
-    monthlyIssues = [];
-    return response;
-  }
-};
-
 export const calculateAverageTime = (
   responseData: IssuesResponse[] | PullsResponse[]
 ): string => {
@@ -62,21 +43,4 @@ export const calculateAverageTime = (
   const average = convertTime(timeDiff);
   timeDiff = 0;
   return average;
-};
-
-export const issues = async (pageNumber: number, lastMonth?: string) => {
-  const { status, data } = await gitHubRequest(
-    "GET /repos/{owner}/{repo}/issues",
-    "all",
-    pageNumber,
-    lastMonth
-  );
-  const checkResponse = checkData(data);
-  if (!checkResponse) {
-    pageNumber++;
-    issues(pageNumber++);
-  }
-  if (checkResponse) {
-    return checkResponse;
-  }
 };

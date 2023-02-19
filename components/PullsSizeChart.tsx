@@ -1,12 +1,12 @@
 import ClayChart from "@clayui/charts";
-import { chartColumn } from "@/ts/types/chartColumn";
+import { chartData } from "@/ts/types/chartColumn";
 
 function ChartDynamic({
   pullsSizeAverage,
   pullsCounter,
 }: {
-  pullsSizeAverage?: chartColumn;
-  pullsCounter?: chartColumn;
+  pullsSizeAverage?: chartData;
+  pullsCounter?: chartData;
 }) {
   const COLUMNS = [pullsSizeAverage, pullsCounter];
   return (

@@ -1,15 +1,13 @@
+//CHART
 import ClayChart from "@clayui/charts";
-import { issues, pulls } from "@/ts/interfaces/monthAverage";
-function MothChart({
-  monthAverageIssues,
-  monthAveragePulls,
-  dataType,
+//TS
+import { issues } from "@/ts/interfaces/monthAverage";
+function MonthChart({
+  monthIssuesAverage,
   lastMonthDaysH,
 }: {
-  monthAverageIssues: issues;
-  monthAveragePulls: pulls;
-  dataType: string;
-  lastMonthDaysH: string[];
+  monthIssuesAverage: issues;
+  lastMonthDaysH?: string[];
 }): JSX.Element {
   return (
     <>
@@ -17,8 +15,8 @@ function MothChart({
         data={{
           x: "x",
           json: {
-            opened: monthAverageIssues ? monthAverageIssues.opened : [],
-            closed: monthAverageIssues ? monthAverageIssues.closed : [],
+            opened: monthIssuesAverage ? monthIssuesAverage.opened : [],
+            closed: monthIssuesAverage ? monthIssuesAverage.closed : [],
             x: lastMonthDaysH,
           },
           type: "line",
@@ -54,4 +52,4 @@ function MothChart({
   );
 }
 
-export default MothChart;
+export default MonthChart;

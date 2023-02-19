@@ -1,16 +1,17 @@
-import Chart from "chart.js/auto";
+//REACT
 import { useEffect } from "react";
-import { issues, pulls } from "@/ts/interfaces/monthAverage";
+//CHART
+import Chart from "chart.js/auto";
+//TS
+import { pulls } from "@/ts/interfaces/monthAverage";
 
-const PullsSizeChartJS = ({
+const MonthPullsChartJS = ({
   lastMonthDaysM,
-  monthAverageIssues,
-  monthAveragePulls,
+  monthPullsAverage,
   dataType,
 }: {
   lastMonthDaysM: string[];
-  monthAverageIssues: issues;
-  monthAveragePulls: pulls;
+  monthPullsAverage: pulls;
   dataType: string;
 }) => {
   let datasets: {
@@ -19,45 +20,28 @@ const PullsSizeChartJS = ({
     borderColor: string;
     backgroundColor: string;
   }[];
-  switch (dataType) {
-    case "issues":
-      datasets = [
-        {
-          label: "Opened",
-          data: monthAverageIssues.opened,
-          borderColor: "#FF3A00",
-          backgroundColor: "#FF3A00",
-        },
-        {
-          label: "Closed",
-          data: monthAverageIssues.closed,
-          borderColor: "#0FC600",
-          backgroundColor: "#0FC600",
-        },
-      ];
-      break;
-    case "pulls":
-      datasets = [
-        {
-          label: "Merged",
-          data: monthAveragePulls.merged,
-          borderColor: "#B20AFF",
-          backgroundColor: "#B20AFF",
-        },
-        {
-          label: "Opened",
-          data: monthAveragePulls.opened,
-          borderColor: "#FF3A00",
-          backgroundColor: "#FF3A00",
-        },
-        {
-          label: "Closed",
-          data: monthAveragePulls.closed,
-          borderColor: "#0FC600",
-          backgroundColor: "#0FC600",
-        },
-      ];
-  }
+  datasets = [
+    {
+      label: "Merged",
+      data: monthPullsAverage.merged,
+      borderColor: "#B20AFF",
+      backgroundColor: "#B20AFF",
+    },
+    {
+      label: "Opened",
+      data: monthPullsAverage.opened,
+      borderColor: "#FF3A00",
+      backgroundColor: "#FF3A00",
+    },
+    {
+      label: "Closed",
+      data: monthPullsAverage.closed,
+      borderColor: "#0FC600",
+      backgroundColor: "#0FC600",
+    },
+  ];
+
+  //EFFECT
   useEffect(() => {
     (async function () {
       // @ts-ignore
@@ -104,8 +88,8 @@ const PullsSizeChartJS = ({
       const element = document.getElementById(dataType);
       element?.remove();
     };
-  }, []);
+  }, [monthPullsAverage]);
   return <canvas id={dataType}></canvas>;
 };
 
-export default PullsSizeChartJS;
+export default MonthPullsChartJS;
