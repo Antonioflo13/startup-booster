@@ -1,7 +1,10 @@
+//NEXT
 import dynamic from "next/dynamic";
-import { chartData, chartJSData } from "@/ts/types/chartColumn";
-import { issues, pulls } from "@/ts/interfaces/monthAverage";
+//REACT
 import { memo } from "react";
+//TS
+import { ChartProps } from "@/ts/interfaces/ChartProps";
+//COMPONENTS
 import ClayProgressBar from "@clayui/progress-bar";
 const Chart = ({
   type,
@@ -17,21 +20,7 @@ const Chart = ({
   loadingPullSizesChart,
   loadingPullMonth,
   loadingIssuesMonth,
-}: {
-  type: string;
-  dataType?: string;
-  monthIssuesAverage?: issues;
-  monthPullsAverage?: pulls;
-  pullsSizeAverageJS?: chartJSData;
-  pullsSizeAverage?: chartData;
-  pullsCounter?: chartData;
-  pullsCounterJS?: chartJSData;
-  lastMonthDaysH?: string[];
-  lastMonthDaysM?: string[];
-  loadingPullSizesChart?: number;
-  loadingPullMonth?: number;
-  loadingIssuesMonth?: number;
-}): JSX.Element => {
+}: ChartProps): JSX.Element => {
   switch (type) {
     case "PullsSizeChart":
       const PullsSizeChart = dynamic(
