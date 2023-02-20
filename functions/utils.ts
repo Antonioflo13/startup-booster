@@ -40,7 +40,7 @@ export const calculateAverageTime = (
     const closed = new Date(data.closed_at);
     timeDiff += closed.getTime() - created.getTime();
   }
-  const average = convertTime(timeDiff);
+  const average = convertTime(timeDiff / responseData.length);
   timeDiff = 0;
   return average;
 };
