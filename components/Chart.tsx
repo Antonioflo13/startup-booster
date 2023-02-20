@@ -85,10 +85,7 @@ const Chart = ({
       const MonthChart = dynamic(() => import("@/components/MonthChart"), {
         ssr: false,
       });
-      if (
-        monthIssuesAverage ||
-        (monthIssuesAverage && dataType && lastMonthDaysH)
-      ) {
+      if (monthIssuesAverage && dataType && lastMonthDaysH) {
         return (
           <MonthChart
             monthIssuesAverage={monthIssuesAverage}
@@ -110,7 +107,9 @@ const Chart = ({
         dataType &&
         lastMonthDaysM &&
         loadingPullMonth &&
-        loadingPullMonth >= 100
+        loadingPullMonth >= 100 &&
+        loadingIssuesMonth &&
+        loadingIssuesMonth >= 100
       ) {
         return (
           <MonthPullsChartJS
@@ -136,7 +135,9 @@ const Chart = ({
         dataType &&
         lastMonthDaysM &&
         loadingIssuesMonth &&
-        loadingIssuesMonth >= 100
+        loadingIssuesMonth >= 100 &&
+        loadingPullMonth &&
+        loadingPullMonth >= 100
       ) {
         return (
           <MonthIssuesChartJS

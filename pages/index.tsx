@@ -1,5 +1,3 @@
-//NEXT
-import Head from "next/head";
 //REACT
 import { useEffect, useState } from "react";
 //INTERFACES
@@ -98,6 +96,7 @@ export default function Home() {
     state?: string,
     lastMonth?: string
   ) => {
+    // @ts-ignore
     try {
       const { status, data } = await gitHubRequest(
         "GET /repos/{owner}/{repo}/issues",
@@ -121,20 +120,20 @@ export default function Home() {
         searchIssues(pageNumber++, state);
       }
       if (!data.length) {
-        setLoadingIssues(100);
-        setLoadingIssuesMonth((oldValue) => oldValue + 1);
         switch (state) {
           case "all":
+            setLoadingIssuesMonth((oldValue) => oldValue + 1);
             setLastMonthIssues(lastMonthIssuesList);
             lastMonthIssuesList = [];
             break;
           case "closed":
+            setLoadingIssues(100);
             setIssues(issuesList);
             issuesList = [];
             break;
         }
       }
-    } catch (e) {
+    } catch (e: any | { message: string }) {
       if (e.message === "Not found") {
         setRepoError(true);
       }
@@ -154,32 +153,32 @@ export default function Home() {
         setRepoError(false);
         switch (state) {
           case "all":
+            setLoadingPullSizesChart((oldValue) => oldValue + 1);
             lastMonthPullsList = [...lastMonthPullsList, ...data];
             break;
           case "closed":
+            setLoadingPullMonth((oldValue) => oldValue + 1);
             pullsList = [...pullsList, ...data];
             break;
         }
         pageNumber++;
-        setLoadingPullSizesChart((oldValue) => oldValue + 1);
-        setLoadingPullMonth((oldValue) => oldValue + 1);
         searchPulls(pageNumber++, state);
       }
       if (!data.length) {
-        setLoadingPullSizesChart((oldValue) => oldValue + 1);
-        setLoadingPullMonth((oldValue) => oldValue + 1);
         switch (state) {
           case "all":
+            setLoadingPullMonth((oldValue) => oldValue + 1);
             setLastMonthPulls(lastMonthPullsList);
             lastMonthPullsList = [];
             break;
           case "closed":
+            setLoadingPullSizesChart((oldValue) => oldValue + 1);
             setPulls(pullsList);
             pullsList = [];
             break;
         }
       }
-    } catch (e) {
+    } catch (e: any | { message: string }) {
       if (e.message === "Not found") {
         setRepoError(true);
       }
@@ -203,7 +202,7 @@ export default function Home() {
           data.created_at
         );
       }
-    } catch (e) {
+    } catch (e: any | { message: string }) {
       if (e.message === "Not found") {
         setRepoError(true);
       }
@@ -295,18 +294,14 @@ export default function Home() {
 
   //CALCULATE MONTH AVERAGE
   const calculateMonthAverage = (type: string): void => {
-    setLoadingPullMonth((oldValue) => oldValue + 1);
-    setLoadingIssuesMonth((oldValue) => oldValue + 1);
-    const obj: MonthAverage = {
-      issues: {
-        opened: [],
-        closed: [],
-      },
-      pulls: {
-        opened: [],
-        closed: [],
-        merged: [],
-      },
+    const issues: issues = {
+      opened: [],
+      closed: [],
+    };
+    const pulls: pulls = {
+      opened: [],
+      closed: [],
+      merged: [],
     };
     switch (type) {
       case "issues":
@@ -319,15 +314,15 @@ export default function Home() {
           for (const issue of lastMonthIssues) {
             if (moment(issue.closed_at).format("DD-MM-YYYY") === day) {
               issueClosed++;
-              obj.issues.closed.push(issueClosed);
+              issues.closed.push(issueClosed);
             }
             if (moment(issue.created_at).format("DD-MM-YYYY") === day) {
               issueCreated++;
-              obj.issues.opened.push(issueCreated);
+              issues.opened.push(issueCreated);
             }
           }
         }
-        setMonthIssuesAverage({ ...monthIssuesAverage, ...obj.issues });
+        setMonthIssuesAverage({ ...monthIssuesAverage, ...issues });
         break;
       case "pulls":
         for (const [index, day] of lastMonthDays.entries()) {
@@ -340,19 +335,19 @@ export default function Home() {
           for (const pull of lastMonthPulls) {
             if (moment(pull.closed_at).format("DD-MM-YYYY") === day) {
               pullClosed++;
-              obj.pulls.closed.push(pullClosed);
+              pulls.closed.push(pullClosed);
             }
             if (moment(pull.created_at).format("DD-MM-YYYY") === day) {
               pullCreated++;
-              obj.pulls.opened.push(pullCreated);
+              pulls.opened.push(pullCreated);
             }
             if (moment(pull.merged_at).format("DD-MM-YYYY") === day) {
               pullMerged++;
-              obj.pulls.merged.push(pullMerged);
+              pulls.merged.push(pullMerged);
             }
           }
         }
-        setMonthPullsAverage({ ...monthPullsAverage, ...obj.pulls });
+        setMonthPullsAverage({ ...monthPullsAverage, ...pulls });
     }
   };
 
@@ -397,7 +392,10 @@ export default function Home() {
           <Navbar />
           <main className="pt-4 mx-4">
             {repoError ? (
-              <div></div>
+              <div>
+                It is necessary to enter the GitHub username and repository name
+                in the .env.local file
+              </div>
             ) : (
               <>
                 <Card title={"Average Merge Time by Pull Request Size"}>
