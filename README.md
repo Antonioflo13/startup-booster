@@ -1,38 +1,26 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-## Getting Started
+# Startup Booster
 
-First, run the development server:
+## Short Description
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+The Dashboard Application that Startup Booster aims to build will be a web-based tool designed to gather and display metrics related to their client's GitHub projects. The application will use GitHub's APIs to access data related to the repositories, including information such as pull request activity, and issue tracking.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will utilize modern web technologies such as Nextjs, React.js to build a responsive and interactive user interface. The front-end will communicate with the GitHub RESTful API.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+In terms of data visualization, the Dashboard Application will leverage popular charting libraries such as Chart.js to provide easy-to-understand metrics and graphs. These visualizations will allow Startup Booster to provide clients with clear and concise insights into their GitHub project's performance and areas for improvement.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/repo-information.ts`.
+Overall, the Dashboard Application will be a powerful tool that will help Startup Booster better serve their customers by providing accurate and valuable insights into their GitHub projects.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+## How to run the project:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+1. Create .env.local to to store configuration variables that are specific to the local environment, such as database connection strings or API keys.
 
-## Learn More
+2. Add the keys:
+   1. NEXT_PUBLIC_GIT_HUB_OWNER
+   2. NEXT_PUBLIC_GIT_HUB_REPO
+   3. NEXT_PUBLIC_GIT_API_KEY
 
-To learn more about Next.js, take a look at the following resources:
+3. Run "npm install" to  install dependencies required by the project.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+4. Run "npm run dev" to run the project in development mode.
+    

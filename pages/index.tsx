@@ -1,7 +1,7 @@
 //REACT
 import { useEffect, useState } from "react";
 //INTERFACES
-import { issues, MonthAverage, pulls } from "@/ts/interfaces/monthAverage";
+import { issues, pulls } from "@/ts/interfaces/monthAverage";
 import { IssuesResponse } from "@/ts/interfaces/issuesResponse";
 import { PullsResponse } from "@/ts/interfaces/pullsReponse";
 //TYPES
@@ -22,6 +22,7 @@ import Chart from "@/components/Chart";
 import Card from "@/components/Card";
 import PullsSizeChartJS from "@/components/PullsSizeChartJS";
 import ClayProgressBar from "@clayui/progress-bar";
+import ClayAlert from "@clayui/alert";
 export default function Home() {
   //STATE
   //ISSUES
@@ -412,7 +413,9 @@ export default function Home() {
           <Navbar />
           <main className="pt-4 mx-4">
             {repoError || repoNotFound ? (
-              <div>{errorMessage}</div>
+              <ClayAlert displayType="warning" title="Warning">
+                {errorMessage}
+              </ClayAlert>
             ) : (
               <>
                 <Card title={"Average Merge Time by Pull Request Size"}>
