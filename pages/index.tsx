@@ -86,7 +86,9 @@ export default function Home() {
   const [loadingIssues, setLoadingIssues] = useState<number>(0);
 
   //ERROR HANDLER
-  const [repoError, setRepoError] = useState(true);
+  const [repoError, setRepoError] = useState(false);
+  const [repoNotFound, setRepoNotFound] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   //FUNCTIONS
 
@@ -105,7 +107,7 @@ export default function Home() {
         lastMonth
       );
       if (status === 200 && data.length) {
-        setRepoError(false);
+        setRepoNotFound(false);
         switch (state) {
           case "all":
             setLoadingIssuesMonth((oldValue) => oldValue + 1);
@@ -135,7 +137,7 @@ export default function Home() {
       }
     } catch (e: any | { message: string }) {
       if (e.message === "Not found") {
-        setRepoError(true);
+        setRepoNotFound(true);
       }
       console.log(e);
     }
@@ -150,7 +152,7 @@ export default function Home() {
         pageNumber
       );
       if (status === 200 && data.length) {
-        setRepoError(false);
+        setRepoNotFound(false);
         switch (state) {
           case "all":
             setLoadingPullSizesChart((oldValue) => oldValue + 1);
@@ -180,7 +182,7 @@ export default function Home() {
       }
     } catch (e: any | { message: string }) {
       if (e.message === "Not found") {
-        setRepoError(true);
+        setRepoNotFound(true);
       }
       console.log(e);
     }
@@ -204,7 +206,7 @@ export default function Home() {
       }
     } catch (e: any | { message: string }) {
       if (e.message === "Not found") {
-        setRepoError(true);
+        setRepoNotFound(true);
       }
       console.log(e);
     }
@@ -352,11 +354,18 @@ export default function Home() {
   };
 
   useEffect(() => {
-    searchIssues(1, "closed");
-    searchIssues(1, "all", lastMonth);
-    searchPulls(1, "closed");
-    searchPulls(1, "all");
-    getDaysArrayByMonth();
+    if (
+      process.env.NEXT_PUBLIC_GIT_HUB_OWNER &&
+      process.env.NEXT_PUBLIC_GIT_HUB_REPO
+    ) {
+      searchIssues(1, "closed");
+      searchIssues(1, "all", lastMonth);
+      searchPulls(1, "closed");
+      searchPulls(1, "all");
+      getDaysArrayByMonth();
+    } else {
+      setRepoError(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -381,6 +390,17 @@ export default function Home() {
     }
   }, [lastMonthIssues, lastMonthPulls]);
 
+  useEffect(() => {
+    if (repoError) {
+      setErrorMessage(
+        "It is necessary to enter the GitHub username and repository name in the .env.local file"
+      );
+    }
+    if (repoNotFound) {
+      setErrorMessage("Repository not found");
+    }
+  }, [repoError, repoNotFound]);
+
   return (
     <>
       <div className="d-flex vh-100 overflow-hidden">
@@ -391,11 +411,8 @@ export default function Home() {
         >
           <Navbar />
           <main className="pt-4 mx-4">
-            {repoError ? (
-              <div>
-                It is necessary to enter the GitHub username and repository name
-                in the .env.local file
-              </div>
+            {repoError || repoNotFound ? (
+              <div>{errorMessage}</div>
             ) : (
               <>
                 <Card title={"Average Merge Time by Pull Request Size"}>
